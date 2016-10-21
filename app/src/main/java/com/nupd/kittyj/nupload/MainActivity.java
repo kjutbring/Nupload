@@ -1,7 +1,10 @@
 package com.nupd.kittyj.nupload;
 
 import android.Manifest;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -54,24 +57,9 @@ public class MainActivity extends AppCompatActivity {
     private void handleRecievedImage(Intent intent) {
         Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
         if (imageUri != null) {
-            Log.v("Image Uri", imageUri.getPath());
-
-            Log.v("Type: ", getMimeType(imageUri));
-
             postFile(imageUri);
             finish();
         }
-    }
-
-    private String getMimeType(Uri uri) {
-        String mimeType = null;
-
-        if (uri != null) {
-            ContentResolver contentResolver = getContentResolver();
-            mimeType = contentResolver.getType(uri);
-        }
-
-        return mimeType;
     }
 
     private File createFileFromUri(Uri uri) {
@@ -101,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
-    public String parseNupResponse(String response) {
+    private String parseNupResponse(String response) {
         Pattern pattern = Pattern.compile("(https://nup.pw/[a-zA-Z0-9]+.[a-zA-Z]+)");
         Matcher matcher = pattern.matcher(response);
 
@@ -112,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
-    public void postFile(Uri uri) {
+    private void postFile(Uri uri) {
         File file = createFileFromUri(uri);
         RequestParams requestParams = new RequestParams();
 
@@ -125,14 +113,18 @@ public class MainActivity extends AppCompatActivity {
         NupClient.post("/", requestParams, new TextHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Log.v("FAIL: ", "Hejhej");
+                Log.v("STATUS CODE: ", Integer.toString(statusCode));
+                Log.v("RESPONSE: ", responseString);
             }
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                Log.v("SUCCESS: ", responseString);
-                parseNupResponse(responseString);
-                Toast.makeText(MainActivity.this, parseNupResponse(responseString), Toast.LENGTH_LONG).show();
+                String link = parseNupResponse(responseString);
+                Toast.makeText(MainActivity.this, link + " added to clipboard", Toast.LENGTH_LONG).show();
+
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("nup-link", link);
+                clipboard.setPrimaryClip(clip);
             }
         });
     }
@@ -142,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case 1: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(MainActivity.this, "Thx, for letting me...", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Pls, no permission = no upload!", Toast.LENGTH_SHORT).show();
                 }
