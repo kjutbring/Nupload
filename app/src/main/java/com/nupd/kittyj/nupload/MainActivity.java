@@ -43,18 +43,22 @@ public class MainActivity extends AppCompatActivity {
 
             if (Intent.ACTION_SEND.equals(action) && type != null) {
                 if (type.startsWith("image/")) {
-                    handleRecievedImage(intent);
+                    handleRecievedFile(intent);
                 } else if (type.startsWith("text/")) {
-                    handleRecievedImage(intent);
+                    handleRecievedFile(intent);
+                } else if (type.startsWith("video/")) {
+                    handleRecievedFile(intent);
+                } else if (type.startsWith("audio/")) {
+                    handleRecievedFile(intent);
                 }
             }
         }
     }
 
-    private void handleRecievedImage(Intent intent) {
-        Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-        if (imageUri != null) {
-            postFile(imageUri);
+    private void handleRecievedFile(Intent intent) {
+        Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        if (uri != null) {
+            postFile(uri);
             finish();
         }
     }
@@ -87,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String parseNupResponse(String response) {
-        Pattern pattern = Pattern.compile("(https://nup.pw/[a-zA-Z0-9]+.[a-zA-Z]+)");
+        Pattern pattern = Pattern.compile("(https://nup.pw/[a-zA-Z0-9]+.[a-zA-Z0-9]+)");
         Matcher matcher = pattern.matcher(response);
 
         if (matcher.find()) {
@@ -132,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case 1: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(MainActivity.this, "Thx, for letting me...", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Pls, no permission = no upload!", Toast.LENGTH_SHORT).show();
                 }
