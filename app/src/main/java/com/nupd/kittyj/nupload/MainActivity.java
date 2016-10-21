@@ -3,7 +3,6 @@ package com.nupd.kittyj.nupload;
 import android.Manifest;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,20 +10,17 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,8 +34,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    1);
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -113,10 +108,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         NupClient.post("/", requestParams, new TextHttpResponseHandler() {
+
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 Log.v("STATUS CODE: ", Integer.toString(statusCode));
-                Log.v("RESPONSE: ", responseString);
+                Toast.makeText(MainActivity.this, "Upload failed: No internet?", Toast.LENGTH_LONG).show();
             }
 
             @Override
