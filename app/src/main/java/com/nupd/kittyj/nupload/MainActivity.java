@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
             if (Intent.ACTION_SEND.equals(action) && type != null) {
                 if (type.startsWith("image/")) {
                     handleRecievedImage(intent);
+                } else if (type.startsWith("text/")) {
+                    handleRecievedImage(intent);
                 }
             }
         }
