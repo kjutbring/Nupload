@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Nupload</string>
+    <string name="description">Hello, share files to this app and they will be uploaded to
+                                https://nup.pw.</string>
 </resources>
